@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "nodo_s.h"
+#define digraph_ls "digraph lista_simple {"
 
 typedef struct Lista_s {
     Nodo_s *primero;
@@ -75,6 +76,37 @@ int agregar_recursivo_s(Nodo_s *a, Nodo_s *s, Nodo_s *d) {
     else
     {
         return agregar_recursivo_s(s, s->siguiente, d);
+    }
+}
+
+int graficar_s(Lista_s *l) {
+    Nodo_s *temp = l->primero;
+    FILE *file;
+    file = fopen("lista_simple.dot", "w+");
+    if (file != NULL) {
+        fprintf(file, "%s\n", digraph_ls);
+        fflush(file);
+
+        while (temp != NULL) {
+            fprintf(file, "%s [label=\"%s\"];\n", temp->valor, temp->valor);
+            fflush(file);
+
+            if (temp->siguiente != NULL) {
+                fprintf(file, "%s -> %s;\n", temp->valor, temp->siguiente->valor);
+                fflush(file);
+            }
+            temp = temp->siguiente;
+        }
+
+        fprintf(file, "}");
+        fflush(file);
+
+        system("dot -Tpng -o lista_simple.png lista_simple.dot");
+        fclose(file);
+        return 1;
+    }
+    else {
+        return 0;
     }
 }
 
