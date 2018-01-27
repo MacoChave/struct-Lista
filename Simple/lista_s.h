@@ -30,34 +30,34 @@ Lista_s *liberarLista_s(Lista_s **l) {
     (*l)->ultimo = NULL;
 }
 
-void agregar_s(Nodo_s *p, Nodo_s *u, char *dato) {
+void agregar_s(Lista_s *l, char *dato) {
     Nodo_s *d = nuevoNodo_s();
     d->valor = (char*)malloc(sizeof(dato));
     strcpy(d->valor, dato);
 
-    if (p == NULL) {
-        p = u = d;
-        printf("Se insertó &s con exito.\n", dato);
+    if (l->primero == NULL) {
+        l->primero = l->ultimo = d;
+        printf("Se insertó %s con exito.\n", dato);
         return;
     }
 
-    if (strcmp(p->valor, dato) > 0) {
-        d->siguiente = p;
-        p = d;
-        printf("Se insertó &s con exito.\n", dato);
+    if (strcmp(l->primero->valor, dato) > 0) {
+        d->siguiente = l->primero;
+        l->primero = d;
+        printf("Se insertó %s con exito.\n", dato);
     }
-    else if (strcmp(dato, u->valor) > 0) {
-        u->siguiente = d;
-        u = d;
-        printf("Se insertó &s con exito.\n", dato);
+    else if (strcmp(dato, l->ultimo->valor) > 0) {
+        l->ultimo->siguiente = d;
+        l->ultimo = d;
+        printf("Se insertó %s con exito.\n", dato);
     }
     else {
-        if (agregar_recursivo_s(p, p->siguiente, d) == 1) {
+        if (agregar_recursivo_s(l->primero, l->primero->siguiente, d) == 0) {
             d = liberarNodo_s(&d);
             printf("No se insertó %s.\n", dato);
         }
         else {
-            printf("Se insertó &s con exito.\n", dato);
+            printf("Se insertó %s con exito.\n", dato);
         }
     }
 }
