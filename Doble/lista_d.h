@@ -1,39 +1,42 @@
-﻿#ifndef LISTA_S_H
-#define LISTA_S_H
+#ifndef LISTA_D_H
+#define LISTA_D_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "nodo_s.h"
-#define digraph_ls "digraph lista_simple {"
+#include "nodo_d.h"
+#define digraph_ld "digraph lista_doble {"
 
-typedef struct Lista_s {
-    Nodo_s *primero;
-    Nodo_s *ultimo;
-} Lista_s;
+typedef struct Lista_d {
+    Nodo_d *primero;
+    Nodo_d *ultimo;
+} Lista_d;
 
-int agregar_recursivo_s(Nodo_s *a, Nodo_s *s, Nodo_s *d) {
-    if (strcasecmp(s->valor, d->valor) > 0) {
-        d->siguiente = s;
-        a->siguiente = d;
+
+int agregar_recursivo_d(Nodo_d *a, Nodo_d *d) {
+    if (strcasecmp(a->valor, d->valor) > 0) {
+        d->siguiente = a;
+        a->anterior->siguiente = d;
+        d->anterior = a->anterior;
+        a->anterior = d;
 
         return 1;
     }
-    else if (strcasecmp(s->valor, d->valor) == 0 || strcasecmp(a->valor, d->valor) == 0) {
+    else if (strcasecmp(a->valor, d->valor) == 0 || strcasecmp(a->anterior->valor, d->valor) == 0) {
         return 0;
     }
     else
     {
-        return agregar_recursivo_s(s, s->siguiente, d);
+        return agregar_recursivo_d(a->siguiente, d);
     }
 }
 
-Nodo_s *buscar_recursivo_s(Nodo_s *n, char *d) {
+Nodo_d *buscar_recursivo_d(Nodo_d *n, char *d) {
     if (n != NULL) {
         if (strcasecmp(n->valor, d) == 0) {
             return n;
         }
         else if (strcasecmp(d, n->valor) > 0) {
-            return buscar_recursivo_s(n->siguiente, d);
+            return buscar_recursivo_d(n->siguiente, d);
         }
         else {
             return NULL;
@@ -44,34 +47,20 @@ Nodo_s *buscar_recursivo_s(Nodo_s *n, char *d) {
     }
 }
 
-Nodo_s *buscar_anterior_s(Nodo_s *a, Nodo_s *n) {
-    if (a != NULL) {
-        if (a->siguiente == n) {
-            return a;
-        }
-        else {
-            return buscar_anterior_s(a->siguiente, n);
-        }
-    }
-    else {
-        return NULL;
-    }
-}
-
-Lista_s *nuevaLista_s() {
-    Lista_s *l = (Lista_s*)malloc(sizeof(Lista_s));
+Lista_d *nuevaLista_s() {
+    Lista_d *l = (Lista_d*)malloc(sizeof(Lista_d));
     l->primero = NULL;
     l->ultimo = NULL;
 
     return l;
 }
 
-Lista_s *liberarLista_s(Lista_s **l) {
-    Nodo_s *temp = (*l)->primero;
+Lista_d *liberarLista_s(Lista_d **l) {
+    Nodo_d *temp = (*l)->primero;
 
     while (temp != NULL) {
         (*l)->primero = temp->siguiente;
-        temp = liberarNodo_s(&temp);
+        temp = liberarNodo_d(&temp);
         temp = (*l)->primero;
     }
 
@@ -80,8 +69,8 @@ Lista_s *liberarLista_s(Lista_s **l) {
     return (*l);
 }
 
-void agregar_s(Lista_s *l, char *dato) {
-    Nodo_s *d = nuevoNodo_s();
+void agregar_d(Lista_d *l, char *dato) {
+    Nodo_d *d = nuevoNodo_d();
     d->valor = (char*)malloc(sizeof(dato));
     strcpy(d->valor, dato);
 
@@ -93,17 +82,19 @@ void agregar_s(Lista_s *l, char *dato) {
 
     if (strcasecmp(l->primero->valor, dato) > 0) {
         d->siguiente = l->primero;
+        l->primero->anterior = d;
         l->primero = d;
         printf("Se insertó %s con exito.\n", dato);
     }
     else if (strcasecmp(dato, l->ultimo->valor) > 0) {
         l->ultimo->siguiente = d;
+        d->anterior = l->ultimo;
         l->ultimo = d;
         printf("Se insertó %s con exito.\n", dato);
     }
     else {
-        if (agregar_recursivo_s(l->primero, l->primero->siguiente, d) == 0) {
-            d = liberarNodo_s(&d);
+        if (agregar_recursivo_d(l->primero->siguiente, d) == 0) {
+            d = liberarNodo_d(&d);
             printf("No se insertó %s.\n", dato);
         }
         else {
@@ -113,16 +104,21 @@ void agregar_s(Lista_s *l, char *dato) {
 }
 
 int graficar_s(Lista_s *l) {
-    Nodo_s *temp = l->primero;
+    Nodo_d *temp = l->primero;
     FILE *file;
-    file = fopen("lista_simple.dot", "w");
+    file = fopen("lista_doble.dot", "w");
     if (file != NULL) {
-        fprintf(file, "%s\n", digraph_ls);
+        fprintf(file, "%s\n", digraph_ld);
         fflush(file);
 
         while (temp != NULL) {
             fprintf(file, "%s [label=\"%s\"];\n", temp->valor, temp->valor);
             fflush(file);
+
+            if (temp->anterior != NULL) {
+                fprintf(file, "%s -> %s;\n", temp->valor, temp->anterior->valor);
+                fflush(file);
+            }
 
             if (temp->siguiente != NULL) {
                 fprintf(file, "%s -> %s;\n", temp->valor, temp->siguiente->valor);
@@ -134,7 +130,7 @@ int graficar_s(Lista_s *l) {
         fprintf(file, "}");
         fflush(file);
 
-        system("dot -Tpng -o lista_simple.png lista_simple.dot");
+        system("dot -Tpng -o lista_doble.png lista_doble.dot");
         fclose(file);
         return 1;
     }
@@ -143,10 +139,10 @@ int graficar_s(Lista_s *l) {
     }
 }
 
-Nodo_s *buscar_s(Lista_s *l, char *d) {
+Nodo_d *buscar_d(Lista_d *l, char *d) {
     if (l->primero != NULL || l->ultimo != NULL)  {
         if (strcasecmp(d, l->primero->valor) > 0 && strcasecmp(l->ultimo->valor, d) > 0) {
-            return buscar_recursivo_s(l->primero, d);
+            return buscar_recursivo_d(l->primero, d);
         }
         else {
             return NULL;
@@ -157,21 +153,25 @@ Nodo_s *buscar_s(Lista_s *l, char *d) {
     }
 }
 
-int eliminar_s(Lista_s *l, char *d) {
-    Nodo_s *n = buscar_s(l, d);
+int eliminar_d(Lista_d *l, char *d) {
+    Nodo_d *n = buscar_d(l, d);
     if (n != NULL) {
         if (l->primero == n) {
             l->primero = l->primero->siguiente;
-            n = liberarNodo_s(&n);
+            l->primero->anterior = NULL;
+            n = liberarNodo_d(&n);
             return 1;
         }
         else {
-            Nodo_s *a = buscar_anterior_s(l->primero, n);
+            Nodo_d *a = n->anterior;
             a->siguiente = n->siguiente;
             if (l->ultimo == n) {
                 l->ultimo = a;
             }
-            n = liberarNodo_s(&n);
+            else {
+                n->siguiente->anterior = a;
+            }
+            n = liberarNodo_d(&n);
             return 1;
         }
     }
@@ -180,4 +180,4 @@ int eliminar_s(Lista_s *l, char *d) {
     }
 }
 
-#endif // LISTA_S_H
+#endif // LISTA_D_H
