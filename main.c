@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 {
     Lista_s *lista = nuevaLista_s();
 
-    for (int i = 0; i < 500; i++) {
+    for (int i = 0; i < 30; i++) {
         char buffer[8];
         sprintf(buffer, "%s%d", nodo, i);
 
@@ -20,6 +20,8 @@ int main(int argc, char *argv[])
     else {
         printf("No se pudo graficar la lista :(");
     }
+
+    Nodo_s *busqueda = buscar_s(lista, "Nodo25");
 
     liberarLista_s(&lista);
 
