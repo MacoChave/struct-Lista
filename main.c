@@ -1,83 +1,82 @@
 #include <stdio.h>
 #include "Simple/lista_s.h"
 #include "Simple/nodo_s.h"
+#include "Doble/lista_d.h"
+#include "Doble/nodo_d.h"
+
+void listaSimple(Lista_s **lista) {
+    int cantidad = 0;
+    char dato[10];
+
+    printf("Cantidad de ingresos: ");
+    scanf("%d", &cantidad);
+
+    for (int i = 0; i <= cantidad; i++) {
+        printf("Ingresar el dato(String): ");
+        scanf("%s", dato);
+        agregar_s(*lista, dato);
+        memset(dato, '\0', strlen(dato));
+    }
+
+    if (graficar_s(*lista) == 1) {
+        printf("Se grafico la lista :D\n");
+    }
+    else {
+        printf("No se pudo graficar la lista :(\n");
+    }
+}
+
+void listaDoble(Lista_d **lista) {
+    int cantidad = 0;
+    char dato[10];
+
+    printf("Cantidad de ingresos: ");
+    scanf("%d", &cantidad);
+
+    for (int i = 0; i <= cantidad; i++) {
+        printf("Ingresar el dato(String): ");
+        scanf("%s", dato);
+        agregar_d(*lista, dato);
+        memset(dato, '\0', strlen(dato));
+    }
+
+    if (graficar_d(*lista) == 1) {
+        printf("Se grafico la lista :D\n");
+    }
+    else {
+        printf("No se pudo graficar la lista :(\n");
+    }
+}
 
 int main(int argc, char *argv[])
 {
-    Lista_s *lista = nuevaLista_s();
+    Lista_s *ls = nuevaLista_s();
+    Lista_d *ld = nuevaLista_d();
+    int opcion = 0;
 
-    char nodo[10];
-    strcpy(nodo, "Barcelona");
-    agregar_s(lista, nodo);
-    memset(nodo,'\0',strlen(nodo));
+    do {
+        printf("Elegir opcion\n");
+        printf("[0] Salir\n"
+               "[1] Lista Simple\n"
+               "[2] Lista Doble\n");
+        scanf("%d", &opcion);
 
-    strcpy(nodo, "Atletico");
-    agregar_s(lista, nodo);
-    memset(nodo,'\0',strlen(nodo));
-
-    strcpy(nodo, "Valencia");
-    agregar_s(lista, nodo);
-    memset(nodo,'\0',strlen(nodo));
-
-    strcpy(nodo, "Madrid");
-    agregar_s(lista, nodo);
-    memset(nodo,'\0',strlen(nodo));
-
-    strcpy(nodo, "City");
-    agregar_s(lista, nodo);
-    memset(nodo,'\0',strlen(nodo));
-
-    strcpy(nodo, "United");
-    agregar_s(lista, nodo);
-    memset(nodo,'\0',strlen(nodo));
-
-    strcpy(nodo, "Chelsea");
-    agregar_s(lista, nodo);
-    memset(nodo,'\0',strlen(nodo));
-
-    strcpy(nodo, "Liverpool");
-    agregar_s(lista, nodo);
-    memset(nodo,'\0',strlen(nodo));
-
-    strcpy(nodo, "Bayern");
-    agregar_s(lista, nodo);
-    memset(nodo,'\0',strlen(nodo));
-
-    strcpy(nodo, "Leverkussen");
-    agregar_s(lista, nodo);
-    memset(nodo,'\0',strlen(nodo));
-
-    if (graficar_s(lista) == 1) {
-        printf("Se ha graficado la lista :D\n");
-    }
-    else {
-        printf("No se pudo graficar la lista :(\n");
-    }
-
-    Nodo_s *busqueda = buscar_s(lista, "Barcelona");
-    if (busqueda != NULL) {
-        printf("Se encontró Barcelona :D\n");
-        busqueda = NULL;
-    }
-    else {
-        printf("No se encontró Barcelona :(\n");
-    }
-
-    if (eliminar_s(lista, "Madrid") == 1) {
-        printf("Se eliminó Madrid >:)\n");
-    }
-    else {
-        printf("No se pudo eliminar Madrid >:(\n");
-    }
-
-    if (graficar_s(lista) == 1) {
-        printf("Se ha graficado la lista :D\n");
-    }
-    else {
-        printf("No se pudo graficar la lista :(\n");
-    }
-
-    liberarLista_s(&lista);
+        switch (opcion) {
+        case 0:
+            ls = liberarLista_s(&ls);
+            ld = liberarLista_d(&ld);
+            break;
+        case 1:
+            listaSimple(&ls);
+            break;
+        case 2:
+            listaDoble(&ld);
+            break;
+        default:
+            printf("Opción no esperada");
+            break;
+        }
+    } while (opcion != 0);
 
     return 0;
 }

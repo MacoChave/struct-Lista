@@ -47,7 +47,7 @@ Nodo_d *buscar_recursivo_d(Nodo_d *n, char *d) {
     }
 }
 
-Lista_d *nuevaLista_s() {
+Lista_d *nuevaLista_d() {
     Lista_d *l = (Lista_d*)malloc(sizeof(Lista_d));
     l->primero = NULL;
     l->ultimo = NULL;
@@ -55,7 +55,7 @@ Lista_d *nuevaLista_s() {
     return l;
 }
 
-Lista_d *liberarLista_s(Lista_d **l) {
+Lista_d *liberarLista_d(Lista_d **l) {
     Nodo_d *temp = (*l)->primero;
 
     while (temp != NULL) {
@@ -103,7 +103,7 @@ void agregar_d(Lista_d *l, char *dato) {
     }
 }
 
-int graficar_s(Lista_s *l) {
+int graficar_d(Lista_d *l) {
     Nodo_d *temp = l->primero;
     FILE *file;
     file = fopen("lista_doble.dot", "w");
