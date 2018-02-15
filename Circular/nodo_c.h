@@ -1,17 +1,17 @@
-#ifndef NODO_D_H
-#define NODO_D_H
+#ifndef NODO_C_H
+#define NODO_C_H
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct Nodo_d {
+typedef struct Nodo_c {
     char *valor;
-    struct Nodo_d *anterior;
-    struct Nodo_d *siguiente;
-} Nodo_d;
+    struct Nodo_c *anterior;
+    struct Nodo_c *siguiente;
+} Nodo_c;
 
 
-Nodo_d *nuevoNodo_d() {
-    Nodo_d *n = (Nodo_d *)malloc(sizeof(Nodo_d));
+Nodo_c *nuevoNodo_c() {
+    Nodo_c *n = (Nodo_c *)malloc(sizeof(Nodo_c));
     n->valor = NULL;
     n->anterior = NULL;
     n->siguiente = NULL;
@@ -19,7 +19,7 @@ Nodo_d *nuevoNodo_d() {
     return n;
 }
 
-Nodo_d *liberarNodo_d(Nodo_d *n) {
+Nodo_c *liberarNodo_c(Nodo_c *n) {
     free(n->valor);
     n->valor = NULL;
     n->anterior = NULL;
@@ -32,4 +32,4 @@ Nodo_d *liberarNodo_d(Nodo_d *n) {
 }
 
 
-#endif // NODO_D_H
+#endif // NODO_C_H

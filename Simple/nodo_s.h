@@ -16,15 +16,15 @@ Nodo_s *nuevoNodo_s() {
     return n;
 }
 
-Nodo_s *liberarNodo_s(Nodo_s **n) {
-    free((*n)->valor);
-    (*n)->valor = NULL;
-    (*n)->siguiente = NULL;
+Nodo_s *liberarNodo_s(Nodo_s *n) {
+    free(n->valor);
+    n->valor = NULL;
+    n->siguiente = NULL;
 
-    free(*n);
-    *n = NULL;
+    free(n);
+    n = NULL;
 
-    return *n;
+    return n;
 }
 
 #endif // NODO_S_H

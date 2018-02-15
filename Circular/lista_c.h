@@ -1,39 +1,42 @@
-﻿#ifndef LISTA_S_H
-#define LISTA_S_H
+#ifndef LISTA_C_H
+#define LISTA_C_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "nodo_s.h"
-#define digraph_ls "digraph lista_simple {"
+#include "nodo_c.h"
+#define digraph_c "digraph lista_circular {"
 
-typedef struct Lista_s {
-    Nodo_s *primero;
-    Nodo_s *ultimo;
-} Lista_s;
+typedef struct Lista_c {
+    Nodo_c *primero;
+    Nodo_c *ultimo;
+} Lista_c;
 
-int _agregar_s(Nodo_s *a, Nodo_s *s, Nodo_s *d) {
-    if (strcasecmp(s->valor, d->valor) > 0) {
-        d->siguiente = s;
-        a->siguiente = d;
+
+int _agregar_c(Nodo_c *a, Nodo_c *d) {
+    if (strcasecmp(a->valor, d->valor) > 0) {
+        d->siguiente = a;
+        a->anterior->siguiente = d;
+        d->anterior = a->anterior;
+        a->anterior = d;
 
         return 1;
     }
-    else if (strcasecmp(s->valor, d->valor) == 0 || strcasecmp(a->valor, d->valor) == 0) {
+    else if (strcasecmp(a->valor, d->valor) == 0 || strcasecmp(a->anterior->valor, d->valor) == 0) {
         return 0;
     }
     else
     {
-        return _agregar_s(s, s->siguiente, d);
+        return _agregar_c(a->siguiente, d);
     }
 }
 
-Nodo_s *_buscar_s(Nodo_s *n, char *d) {
+Nodo_c *_buscar_c(Nodo_c *n, char *d) {
     if (n != NULL) {
         if (strcasecmp(n->valor, d) == 0) {
             return n;
         }
         else if (strcasecmp(d, n->valor) > 0) {
-            return _buscar_s(n->siguiente, d);
+            return _buscar_c(n->siguiente, d);
         }
         else {
             return NULL;
@@ -44,34 +47,25 @@ Nodo_s *_buscar_s(Nodo_s *n, char *d) {
     }
 }
 
-Nodo_s *_buscarAnterior_s(Nodo_s *a, Nodo_s *n) {
-    if (a != NULL) {
-        if (a->siguiente == n) {
-            return a;
-        }
-        else {
-            return _buscarAnterior_s(a->siguiente, n);
-        }
-    }
-    else {
-        return NULL;
-    }
-}
-
-Lista_s *nuevaLista_s() {
-    Lista_s *l = (Lista_s*)malloc(sizeof(Lista_s));
+Lista_c *nuevaLista_c() {
+    Lista_c *l = (Lista_c*)malloc(sizeof(Lista_c));
     l->primero = NULL;
     l->ultimo = NULL;
 
     return l;
 }
 
-Lista_s *liberarLista_s(Lista_s *l) {
-    Nodo_s *temp = l->primero;
+Lista_c *liberarLista_c(Lista_c *l) {
+    Nodo_c *temp = l->primero;
+    if (temp == NULL)
+        return l;
+
+    l->primero->anterior = NULL;
+    l->ultimo->siguiente = NULL;
 
     while (temp != NULL) {
         l->primero = temp->siguiente;
-        temp = liberarNodo_s(temp);
+        temp = liberarNodo_c(temp);
         temp = l->primero;
     }
 
@@ -80,30 +74,38 @@ Lista_s *liberarLista_s(Lista_s *l) {
     return l;
 }
 
-void agregar_s(Lista_s *l, char *dato) {
-    Nodo_s *d = nuevoNodo_s();
+void agregar_c(Lista_c *l, char *dato) {
+    Nodo_c *d = nuevoNodo_c();
     d->valor = (char*)malloc(sizeof(dato));
     strcpy(d->valor, dato);
 
     if (l->primero == NULL) {
         l->primero = l->ultimo = d;
+        l->primero->anterior = d;
+        l->ultimo->siguiente = d;
         printf("Se insertó %s con exito.\n", dato);
         return;
     }
 
     if (strcasecmp(l->primero->valor, dato) > 0) {
         d->siguiente = l->primero;
+        d->anterior = l->ultimo;
+        l->primero->anterior = d;
+        l->ultimo->siguiente = d;
         l->primero = d;
         printf("Se insertó %s con exito.\n", dato);
     }
     else if (strcasecmp(dato, l->ultimo->valor) > 0) {
+        d->anterior = l->ultimo;
+        d->siguiente = l->primero;
         l->ultimo->siguiente = d;
+        l->primero->anterior = d;
         l->ultimo = d;
         printf("Se insertó %s con exito.\n", dato);
     }
     else {
-        if (_agregar_s(l->primero, l->primero->siguiente, d) == 0) {
-            d = liberarNodo_s(d);
+        if (_agregar_c(l->primero->siguiente, d) == 0) {
+            d = liberarNodo_c(d);
             printf("No se insertó %s.\n", dato);
         }
         else {
@@ -112,14 +114,14 @@ void agregar_s(Lista_s *l, char *dato) {
     }
 }
 
-int graficar_s(Lista_s *l) {
-    Nodo_s *temp = l->primero;
+int graficar_c(Lista_c *l) {
+    Nodo_c *temp = l->primero;
     FILE *file;
-    file = fopen("lista_simple.dot", "w");
+    file = fopen("Lista_circular.dot", "w");
     if (file != NULL) {
-        fprintf(file, "%s\n", digraph_ls);
+        fprintf(file, "%s\n", digraph_c);
         fprintf(file, "\trankdir = LR\n");
-        fprintf(file, "\tnode [shape = record]\n\n");
+        fprintf(file, "\tnode [shape=record]\n\n");
         fflush(file);
 
         while (temp != NULL) {
@@ -130,13 +132,24 @@ int graficar_s(Lista_s *l) {
                 fprintf(file, "\t%s -> %s;\n", temp->valor, temp->siguiente->valor);
                 fflush(file);
             }
-            temp = temp->siguiente;
+
+            if (temp->anterior != NULL) {
+                fprintf(file, "\t%s -> %s;\n", temp->valor, temp->anterior->valor);
+                fflush(file);
+            }
+
+            if (temp->siguiente != l->primero) {
+                temp = temp->siguiente;
+            }
+            else {
+                temp = NULL;
+            }
         }
 
         fprintf(file, "}");
         fflush(file);
 
-        system("dot -Tpng -o lista_simple.png lista_simple.dot");
+        system("dot -Tpng -o Lista_circular.png Lista_circular.dot");
         fclose(file);
         return 1;
     }
@@ -145,10 +158,10 @@ int graficar_s(Lista_s *l) {
     }
 }
 
-Nodo_s *buscar_s(Lista_s *l, char *d) {
+Nodo_c *buscar_c(Lista_c *l, char *d) {
     if (l->primero != NULL || l->ultimo != NULL)  {
         if (strcasecmp(d, l->primero->valor) > 0 && strcasecmp(l->ultimo->valor, d) > 0) {
-            return _buscar_s(l->primero, d);
+            return _buscar_c(l->primero, d);
         }
         else {
             if (strcasecmp(l->primero->valor, d) == 0) {
@@ -167,21 +180,27 @@ Nodo_s *buscar_s(Lista_s *l, char *d) {
     }
 }
 
-int eliminar_s(Lista_s *l, char *d) {
-    Nodo_s *n = buscar_s(l, d);
+int eliminar_c(Lista_c *l, char *d) {
+    Nodo_c *n = buscar_c(l, d);
     if (n != NULL) {
         if (l->primero == n) {
             l->primero = l->primero->siguiente;
-            n = liberarNodo_s(n);
+            l->primero->anterior = l->ultimo;
+            l->ultimo->siguiente = l->primero;
+            n = liberarNodo_c(n);
             return 1;
         }
         else {
-            Nodo_s *a = _buscarAnterior_s(l->primero, n);
+            Nodo_c *a = n->anterior;
             a->siguiente = n->siguiente;
             if (l->ultimo == n) {
+                l->primero->anterior = a;
                 l->ultimo = a;
             }
-            n = liberarNodo_s(n);
+            else {
+                n->siguiente->anterior = a;
+            }
+            n = liberarNodo_c(n);
             return 1;
         }
     }
@@ -190,4 +209,4 @@ int eliminar_s(Lista_s *l, char *d) {
     }
 }
 
-#endif // LISTA_S_H
+#endif // LISTA_C_H

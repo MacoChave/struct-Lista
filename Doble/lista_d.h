@@ -12,7 +12,7 @@ typedef struct Lista_d {
 } Lista_d;
 
 
-int agregar_recursivo_d(Nodo_d *a, Nodo_d *d) {
+int _agregar_d(Nodo_d *a, Nodo_d *d) {
     if (strcasecmp(a->valor, d->valor) > 0) {
         d->siguiente = a;
         a->anterior->siguiente = d;
@@ -26,17 +26,17 @@ int agregar_recursivo_d(Nodo_d *a, Nodo_d *d) {
     }
     else
     {
-        return agregar_recursivo_d(a->siguiente, d);
+        return _agregar_d(a->siguiente, d);
     }
 }
 
-Nodo_d *buscar_recursivo_d(Nodo_d *n, char *d) {
+Nodo_d *_buscar_d(Nodo_d *n, char *d) {
     if (n != NULL) {
         if (strcasecmp(n->valor, d) == 0) {
             return n;
         }
         else if (strcasecmp(d, n->valor) > 0) {
-            return buscar_recursivo_d(n->siguiente, d);
+            return _buscar_d(n->siguiente, d);
         }
         else {
             return NULL;
@@ -55,18 +55,18 @@ Lista_d *nuevaLista_d() {
     return l;
 }
 
-Lista_d *liberarLista_d(Lista_d **l) {
-    Nodo_d *temp = (*l)->primero;
+Lista_d *liberarLista_d(Lista_d *l) {
+    Nodo_d *temp = l->primero;
 
     while (temp != NULL) {
-        (*l)->primero = temp->siguiente;
-        temp = liberarNodo_d(&temp);
-        temp = (*l)->primero;
+        l->primero = temp->siguiente;
+        temp = liberarNodo_d(temp);
+        temp = l->primero;
     }
 
-    (*l)->ultimo = NULL;
+    l->ultimo = NULL;
 
-    return (*l);
+    return l;
 }
 
 void agregar_d(Lista_d *l, char *dato) {
@@ -93,8 +93,8 @@ void agregar_d(Lista_d *l, char *dato) {
         printf("Se insertó %s con exito.\n", dato);
     }
     else {
-        if (agregar_recursivo_d(l->primero->siguiente, d) == 0) {
-            d = liberarNodo_d(&d);
+        if (_agregar_d(l->primero->siguiente, d) == 0) {
+            d = liberarNodo_d(d);
             printf("No se insertó %s.\n", dato);
         }
         else {
@@ -109,21 +109,24 @@ int graficar_d(Lista_d *l) {
     file = fopen("lista_doble.dot", "w");
     if (file != NULL) {
         fprintf(file, "%s\n", digraph_ld);
+        fprintf(file, "\trankdir = LR\n");
+        fprintf(file, "\tnode [shape = record]\n\n");
         fflush(file);
 
         while (temp != NULL) {
-            fprintf(file, "%s [label=\"%s\"];\n", temp->valor, temp->valor);
+            fprintf(file, "\t%s [label=\"%s\"];\n", temp->valor, temp->valor);
             fflush(file);
 
-            if (temp->anterior != NULL) {
-                fprintf(file, "%s -> %s;\n", temp->valor, temp->anterior->valor);
+            if (temp->siguiente != NULL) {
+                fprintf(file, "\t%s -> %s;\n", temp->valor, temp->siguiente->valor);
                 fflush(file);
             }
 
-            if (temp->siguiente != NULL) {
-                fprintf(file, "%s -> %s;\n", temp->valor, temp->siguiente->valor);
+            if (temp->anterior != NULL) {
+                fprintf(file, "\t%s -> %s;\n", temp->valor, temp->anterior->valor);
                 fflush(file);
             }
+
             temp = temp->siguiente;
         }
 
@@ -142,10 +145,18 @@ int graficar_d(Lista_d *l) {
 Nodo_d *buscar_d(Lista_d *l, char *d) {
     if (l->primero != NULL || l->ultimo != NULL)  {
         if (strcasecmp(d, l->primero->valor) > 0 && strcasecmp(l->ultimo->valor, d) > 0) {
-            return buscar_recursivo_d(l->primero, d);
+            return _buscar_d(l->primero, d);
         }
         else {
-            return NULL;
+            if (strcasecmp(l->primero->valor, d) == 0) {
+                return l->primero;
+            }
+            else if (strcasecmp(l->ultimo->valor, d) == 0) {
+                return l->ultimo;
+            }
+            else {
+                return NULL;
+            }
         }
     }
     else {
@@ -159,7 +170,7 @@ int eliminar_d(Lista_d *l, char *d) {
         if (l->primero == n) {
             l->primero = l->primero->siguiente;
             l->primero->anterior = NULL;
-            n = liberarNodo_d(&n);
+            n = liberarNodo_d(n);
             return 1;
         }
         else {
@@ -171,7 +182,7 @@ int eliminar_d(Lista_d *l, char *d) {
             else {
                 n->siguiente->anterior = a;
             }
-            n = liberarNodo_d(&n);
+            n = liberarNodo_d(n);
             return 1;
         }
     }
